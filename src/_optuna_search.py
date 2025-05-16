@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
-from model import RNAHybridModel, MaskedSNRLoss
+from _model import RNAHybridModel, MaskedSNRLoss
 import optuna
 from sklearn.preprocessing import LabelEncoder
 from torch.optim.lr_scheduler import CosineAnnealingLR
