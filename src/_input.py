@@ -7,7 +7,9 @@ import math
 def extract_features(file_name):
   df = pd.read_csv(file_name)
   sequences = df['sequence'] if 'sequence' in df.columns else df['sequences']
+  descriptions = df['description']
 
+  
 # Allowed tokens
   NUCS = ['A', 'U', 'G', 'C', 'X']
   TOKEN_IDX = {n: i for i, n in enumerate(NUCS)}
@@ -79,27 +81,33 @@ def extract_features(file_name):
       entropy = -np.nansum(P * np.log(P + eps))
       return entropy
 
+  def str_to_binary(s):
+    return ''.join(format(ord(c), '08b') for c in str(s))
+
 
 # Final dataframe
   records = []
 
-  for seq in sequences:
-      seq = seq.strip().upper()
-      token_embed = one_hot_encode(seq)
-      pos_embed = sinusoidal_pos_encoding(len(seq), len(NUCS))
-      structure, pairs = nussinov_fold(seq)
-      bp_matrix = boltzmann_pair_matrix(seq, pairs)
-      entropy = compute_entropy(bp_matrix)
-      records.append({
-          "sequence": seq,
-          "token_embeddings": token_embed,
-          "positional_embeddings": pos_embed,
-          "pair_list": pairs,
-          "dot_bracket": structure,
-          "base_pair_prob_matrix": bp_matrix,
-          "sequence_length": len(seq),
-          "entropy": entropy
-      })
+  for seq, desc in zip(sequences, descriptions):
+    seq = seq.strip().upper()
+    token_embed = one_hot_encode(seq)
+    pos_embed = sinusoidal_pos_encoding(len(seq), len(NUCS))
+    structure, pairs = nussinov_fold(seq)
+    bp_matrix = boltzmann_pair_matrix(seq, pairs)
+    entropy = compute_entropy(bp_matrix)
+    binary_desc = str_to_binary(desc)
+    records.append({
+        "sequence": seq,
+        "token_embeddings": token_embed,
+        "positional_embeddings": pos_embed,
+        "pair_list": pairs,
+        "dot_bracket": structure,
+        "base_pair_prob_matrix": bp_matrix,
+        "sequence_length": len(seq),
+        "entropy": entropy,
+        "description": binary_desc
+    })
+
 
 # Convert to DataFrame
   final_df = pd.DataFrame(records)
