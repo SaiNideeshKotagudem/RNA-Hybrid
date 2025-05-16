@@ -8,7 +8,7 @@ def extract_features(file_name):
   df = pd.read_csv(file_name)
   sequences = df['sequence'] if 'sequence' in df.columns else df['sequences']
   descriptions = df['description']
-
+  all_sequences = df['all_sequences']
   
 # Allowed tokens
   NUCS = ['A', 'U', 'G', 'C', 'X']
@@ -88,7 +88,7 @@ def extract_features(file_name):
 # Final dataframe
   records = []
 
-  for seq, desc in zip(sequences, descriptions):
+  for seq, desc, all in zip(sequences, descriptions, all_sequences):
     seq = seq.strip().upper()
     token_embed = one_hot_encode(seq)
     pos_embed = sinusoidal_pos_encoding(len(seq), len(NUCS))
@@ -96,6 +96,7 @@ def extract_features(file_name):
     bp_matrix = boltzmann_pair_matrix(seq, pairs)
     entropy = compute_entropy(bp_matrix)
     binary_desc = str_to_binary(desc)
+    binary_all = str_to_binary(all)
     records.append({
         "sequence": seq,
         "token_embeddings": token_embed,
@@ -105,9 +106,11 @@ def extract_features(file_name):
         "base_pair_prob_matrix": bp_matrix,
         "sequence_length": len(seq),
         "entropy": entropy,
-        "description": binary_desc
+        "description": binary_desc,
+        "all_sequences": binary_all
     })
 
 
 # Convert to DataFrame
   final_df = pd.DataFrame(records)
+  return final_df
