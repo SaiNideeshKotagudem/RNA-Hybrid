@@ -1,5 +1,5 @@
 import torch
-from train import RNAHybridModel, load_data_loaders, train_epoch, validate_epoch
+from _optuna_search import RNAHybridModel, load_data_loaders, train_epoch, validate_epoch
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import torch.nn as nn
@@ -48,7 +48,7 @@ def train_final_model(best_params, num_epochs=50, patience=5, device=None):
 
 if __name__ == "__main__":
     import optuna
-    from train import objective
+    from _optuna_search import objective
 
     # Step 1: Run Optuna search
     study = optuna.create_study(direction='minimize')
